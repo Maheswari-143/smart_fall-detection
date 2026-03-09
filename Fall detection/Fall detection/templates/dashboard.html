@@ -1,0 +1,713 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SmartFall - Analytics Dashboard</title>
+
+  <!-- Chart.js CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.1/css/all.min.css"
+        integrity="sha512-5Hs3dF2AEPkpNAR7UiOHba+lRSJNeM2ECkwxUIxC1Q/FLycGTbNapWXB4tP889k5T5Ju8fs4b1P5z/iB4nMfSQ=="
+        crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+  <style>
+    :root {
+            --primary: #0b4a4a;
+            --primary-light: #0f5d5d;
+            --bg: #f4f7fb;
+            --text: #102a43;
+            --muted: #6b7280;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: "Inter", sans-serif;
+            background: var(--bg);
+            color: var(--text);
+        }
+
+        /* NAVBAR */
+        .navbar {
+            background: var(--primary);
+            height: 70px;
+            padding: 0 40px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            color: white;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        .nav-left {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .nav-left img {
+            width: 50px;
+            height: 50px;
+            object-fit: contain;
+            border: 3px solid white;
+            border-radius: 50%;
+            padding: 5px;
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .nav-brand {
+            font-size: 20px;
+            font-weight: 700;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 30px;
+            align-items: center;
+        }
+
+        .nav-link {
+            color: white;
+            text-decoration: none;
+          font-size: 14px;
+          font-weight: 600;
+          padding: 8px 0;
+          border-bottom: 2px solid transparent;
+          transition: all 0.3s ease;
+        }
+
+        .nav-link:hover {
+          opacity: 0.9;
+        }
+
+        .nav-link.active {
+          border-bottom-color: rgba(255, 255, 255, 0.9);
+        }
+
+        /* Hamburger Menu */
+        .hamburger {
+            display: none;
+            flex-direction: column;
+            cursor: pointer;
+            gap: 5px;
+        }
+
+        .hamburger span {
+            width: 25px;
+            height: 3px;
+            background: white;
+            border-radius: 2px;
+            transition: all 0.3s ease;
+        }
+
+        .hamburger.active span:nth-child(1) {
+            transform: rotate(45deg) translate(10px, 10px);
+        }
+
+        .hamburger.active span:nth-child(2) {
+            opacity: 0;
+        }
+
+        .hamburger.active span:nth-child(3) {
+            transform: rotate(-45deg) translate(7px, -7px);
+        }
+
+        /* Mobile Menu */
+        .mobile-menu {
+            display: none;
+            position: absolute;
+            top: 70px;
+            left: 0;
+            right: 0;
+            background: var(--primary);
+            flex-direction: column;
+            padding: 20px;
+            gap: 15px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            z-index: 40;
+        }
+
+        .mobile-menu.active {
+            display: flex;
+        }
+
+        .mobile-menu .nav-link {
+            padding: 12px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .mobile-menu .nav-link:last-child {
+            border-bottom: none;
+        }
+
+
+
+    /* CONTENT */
+    .content {
+      padding: 30px;
+      margin-bottom: 0;
+      min-height: calc(100vh - 70px);
+    }
+
+    .section {
+      margin-bottom: 30px;
+    }
+
+    .section h2 {
+      margin-bottom: 15px;
+      color: #0c4a5b;
+    }
+
+    .quick-actions {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      margin-bottom: 30px;
+    }
+
+    .quick-actions button {
+      padding: 10px 20px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 600;
+      color: white;
+      background: #0c4a5b;
+      transition: all 0.3s ease;
+    }
+
+    .quick-actions button:hover {
+      background: #074454;
+    }
+
+    .analytics-cards {
+      display: flex;
+      gap: 20px;
+      flex-wrap: wrap;
+      margin-top: 20px;
+    }
+
+    .card {
+      background: #fff;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      flex: 1;
+      min-width: 300px;
+    }
+
+    .card h3 {
+      color: #0c4a5b;
+      margin-top: 0;
+      margin-bottom: 15px;
+      font-size: 16px;
+    }
+
+    .card canvas {
+      width: 100% !important;
+      height: 250px !important;
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 15px;
+      margin-top: 20px;
+    }
+
+    .stat-box {
+      background: linear-gradient(135deg, #5fa3a3 0%, #52ba7b 100%);
+      color: white;
+      padding: 20px;
+      border-radius: 12px;
+      text-align: center;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+
+    .stat-box h4 {
+      margin: 0;
+      font-size: 14px;
+      opacity: 0.9;
+      margin-bottom: 10px;
+    }
+
+    .stat-box .value {
+      font-size: 32px;
+      font-weight: bold;
+      margin: 0;
+    }
+
+    footer {
+            background: var(--primary);
+            color: white;
+            padding: 60px 40px 30px;
+            margin-top: auto;
+            box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .footer-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 3rem;
+            padding-bottom: 40px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .footer-section {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .footer-logo-section {
+            display: flex;
+            align-items: center;
+            gap: 18px;
+            margin-bottom: 1.2rem;
+        }
+
+        .footer-logo-section img {
+            width: 55px;
+            height: 55px;
+            object-fit: contain;
+        }
+
+        .footer-section h3 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+        }
+
+        .footer-section p {
+            font-size: 0.95rem;
+            line-height: 1.8;
+            opacity: 0.9;
+        }
+
+        .footer-section .contact-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 0.5rem;
+        }
+
+        .footer-section .social-links {
+            display: flex;
+            gap: 15px;
+            margin-top: 1rem;
+        }
+
+        .footer-section .social-links a {
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.3rem;
+            transition: all 0.3s ease;
+            color: white;
+        }
+
+        .footer-section .social-links a:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-3px);
+        }
+
+        .quick-links {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .quick-links li {
+            margin-bottom: 0.5rem;
+        }
+
+        .quick-links a {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 0.95rem;
+            transition: opacity 0.3s ease, color 0.2s;
+            color: #fff !important;
+            text-decoration: none !important;
+        }
+
+        .quick-links a:hover {
+            opacity: 1 !important;
+            color: #00bfae !important;
+            text-decoration: none !important;
+        }
+
+        /* Force footer links to white */
+        footer a {
+          color: #fff !important;
+          opacity: 1 !important;
+          text-decoration: none !important;
+        }
+        footer .quick-links a,
+        footer .footer-section .social-links a {
+          color: #fff !important;
+          opacity: 1 !important;
+          text-decoration: none !important;
+        }
+        footer .quick-links a:hover,
+        footer .footer-section .social-links a:hover {
+          color: #00bfae !important;
+          text-decoration: none !important;
+          opacity: 1 !important;
+        }
+
+        .footer-bottom {
+            text-align: center;
+            padding-top: 30px;
+            font-size: 14px;
+            font-weight: 500;
+            opacity: 0.9;
+        }
+
+
+    /* RESPONSIVE */
+    @media (max-width: 1024px) {
+      .footer-container {
+        gap: 2rem;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .navbar {
+        padding: 0 20px;
+      }
+
+      .nav-links {
+        display: none;
+      }
+
+      .hamburger {
+        display: flex;
+      }
+
+      .content {
+        padding: 20px;
+      }
+
+      .card {
+        min-width: 100%;
+      }
+
+      footer {
+        padding: 40px 20px 20px;
+      }
+
+      .footer-container {
+        grid-template-columns: 1fr;
+        gap: 2rem;
+        padding-bottom: 30px;
+      }
+
+      .footer-section a {
+        font-size: 0.9rem;
+      }
+
+      .footer-section p {
+        font-size: 0.8rem;
+      }
+
+      .footer-section .social-links a {
+        width: 38px;
+        height: 38px;
+        font-size: 0.9rem;
+      }
+    }
+
+    @media (max-width: 500px) {
+      .navbar {
+        padding: 0 15px;
+        height: 60px;
+      }
+
+      footer {
+        padding: 30px 15px 15px;
+      }
+
+      .footer-container {
+        gap: 1.5rem;
+        padding-bottom: 20px;
+      }
+
+      .footer-section h3 {
+        font-size: 1.2rem;
+      }
+
+      .footer-logo-section img {
+        width: 45px;
+        height: 45px;
+      }
+
+      .footer-section a {
+        font-size: 0.85rem;
+      }
+
+      .footer-section .social-links a {
+        width: 35px;
+        height: 35px;
+        font-size: 0.8rem;
+      }
+
+      .nav-links {
+        gap: 10px;
+        font-size: 11px;
+      }
+
+      .nav-brand {
+        font-size: 16px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- TOP NAVBAR -->
+  <div class="navbar">
+    <div class="nav-left">
+      <img src="/static/fall_logo.png" alt="SmartFall Logo">
+      <div class="nav-brand">SmartFall</div>
+    </div>
+
+    <nav class="nav-links">
+      <a href="{{ url_for('dashboard') }}" class="nav-link active">Dashboard</a>
+      <a href="{{ url_for('live') if session.get('user') else url_for('login') }}" class="nav-link">Live Monitor</a>
+      <a href="{{ url_for('contact_page') if session.get('user') else url_for('login') }}" class="nav-link">Contacts</a>
+      <a href="{{ url_for('logout') }}" class="nav-link">Logout</a>
+    </nav>
+
+    <div class="hamburger" id="hamburger">
+      <span></span>
+      <span></span>
+      <span></span>
+    </div>
+  </div>
+
+  <!-- Mobile Menu -->
+  <nav class="mobile-menu" id="mobileMenu">
+    <a href="{{ url_for('dashboard') }}" class="nav-link active">Dashboard</a>
+    <a href="{{ url_for('live') if session.get('user') else url_for('login') }}" class="nav-link">Live Monitor</a>
+    <a href="{{ url_for('contact_page') if session.get('user') else url_for('login') }}" class="nav-link">Contacts</a>
+    <a href="{{ url_for('logout') }}" class="nav-link">Logout</a>
+  </nav>
+
+  <!-- MAIN CONTENT -->
+  <div class="content">
+    <div class="section quick-actions">
+      <h2>📊 Live Detection Analytics</h2>
+      <button onclick="location.href='{{ url_for('live') if session.get('user') else url_for('login') }}'">Start Live Monitoring</button>
+    </div>
+
+    <div class="section">
+      <!-- Statistics Grid -->
+      <div class="stats-grid">
+        <div class="stat-box">
+          <h4>Today's Falls Detected</h4>
+          <p class="value" id="todayFalls">0</p>
+        </div>
+        <div class="stat-box">
+          <h4>This Week</h4>
+          <p class="value" id="weekFalls">0</p>
+        </div>
+        <div class="stat-box">
+          <h4>Average Confidence</h4>
+          <p class="value" id="avgConfidence">0%</p>
+        </div>
+        <div class="stat-box">
+          <h4>Live Detections</h4>
+          <p class="value" id="liveDetections">0</p>
+        </div>
+      </div>
+
+      <!-- Charts -->
+      <div class="analytics-cards">
+        <div class="card">
+          <h3>📈 Weekly Fall Detection Trend</h3>
+          <canvas id="weeklyChart"></canvas>
+        </div>
+      </div>
+
+      <div class="analytics-cards">
+        <div class="card">
+          <h3>📅 Monthly Detection Trends</h3>
+          <canvas id="monthlyChart"></canvas>
+        </div>
+        <div class="card">
+          <h3>🎯 Detection Accuracy</h3>
+          <canvas id="accuracyChart"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+
+      {% include 'footer.html' %}
+
+
+  <script>
+    // Hamburger menu toggle
+    const hamburger = document.getElementById('hamburger');
+    const mobileMenu = document.getElementById('mobileMenu');
+
+    hamburger.addEventListener('click', () => {
+      hamburger.classList.toggle('active');
+      mobileMenu.classList.toggle('active');
+    });
+
+    // Close menu when a link is clicked
+    document.querySelectorAll('.mobile-menu .nav-link').forEach(link => {
+      link.addEventListener('click', () => {
+        hamburger.classList.remove('active');
+        mobileMenu.classList.remove('active');
+      });
+    });
+
+    // Weekly Chart - Bar Chart
+    const weeklyChart = new Chart(document.getElementById('weeklyChart'), {
+      type: 'bar',
+      data: {
+        labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+        datasets: [{
+          label: 'Falls Detected',
+          data: [0, 0, 0, 0, 0, 0, 0],
+          backgroundColor: '#1e8449',
+          borderRadius: 8,
+          borderSkipped: false
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { display: true, position: 'top' },
+          tooltip: { mode: 'index', intersect: false }
+        },
+        scales: {
+          y: { beginAtZero: true, ticks: { stepSize: 1 } }
+        }
+      }
+    });
+
+    // Monthly Chart - Line Chart
+    const monthlyChart = new Chart(document.getElementById('monthlyChart'), {
+      type: 'line',
+      data: {
+        labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+        datasets: [
+          {
+            label: 'Live Detections',
+            data: Array(12).fill(0),
+            borderColor: '#0c4a5b',
+            backgroundColor: 'rgba(12, 74, 91, 0.1)',
+            tension: 0.4,
+            fill: true,
+            borderWidth: 2
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { position: 'top' }
+        },
+        scales: {
+          y: { beginAtZero: true }
+        }
+      }
+    });
+
+    // Accuracy Chart - Radar Chart
+    const accuracyChart = new Chart(document.getElementById('accuracyChart'), {
+      type: 'radar',
+      data: {
+        labels: ['Precision', 'Recall', 'Accuracy', 'Confidence', 'Response'],
+        datasets: [{
+          label: 'Detection Performance',
+          data: [85, 90, 88, 0, 95],
+          borderColor: '#0c4a5b',
+          backgroundColor: 'rgba(12, 74, 91, 0.2)',
+          borderWidth: 2,
+          pointBackgroundColor: '#1e8449',
+          pointBorderColor: '#fff',
+          pointBorderWidth: 2
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { position: 'bottom' }
+        },
+        scales: {
+          r: { min: 0, max: 100 }
+        }
+      }
+    });
+
+    // Function to fetch analytics from API and update all charts
+    function updateAnalytics() {
+      fetch('/api/live-analytics')
+        .then(res => res.json())
+        .then(data => {
+          console.log('Analytics data:', data);
+
+          // Update Weekly Chart
+          if (data.weekly && Array.isArray(data.weekly)) {
+            weeklyChart.data.datasets[0].data = data.weekly;
+            weeklyChart.update();
+          }
+
+          // Update Monthly Chart
+          if (data.monthly_live) {
+            monthlyChart.data.datasets[0].data = data.monthly_live;
+            monthlyChart.update();
+          }
+
+          // Update Statistics - Get today's falls from weekly data
+          const dayIndex = new Date().getDay();
+          const adjustedIndex = dayIndex === 0 ? 6 : dayIndex - 1;
+          const todayFalls = data.weekly ? (data.weekly[adjustedIndex] || 0) : 0;
+          const totalFallsWeek = data.weekly ? data.weekly.reduce((a, b) => a + b, 0) : 0;
+
+          const totalLive = data.monthly_live ? data.monthly_live.reduce((a, b) => a + b, 0) : 0;
+
+          document.getElementById('todayFalls').textContent = todayFalls;
+          document.getElementById('weekFalls').textContent = totalFallsWeek;
+          document.getElementById('avgConfidence').textContent = Math.round((data.avg_confidence || 0) * 100) + '%';
+          document.getElementById('liveDetections').textContent = totalLive;
+
+          // Update Accuracy Chart with confidence score
+          accuracyChart.data.datasets[0].data[3] = Math.round((data.avg_confidence || 0) * 100);
+          accuracyChart.update();
+        })
+        .catch(err => {
+          console.error('Analytics fetch error:', err);
+        });
+    }
+
+    // Update analytics on page load and every 2 seconds for real-time updates
+    updateAnalytics();
+    setInterval(updateAnalytics, 2000);
+  </script>
+
+</body>
+
+</html>

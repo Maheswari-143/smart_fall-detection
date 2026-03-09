@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Signup | SmartFall</title>
+
+    <!-- Google Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        :root {
+            --primary: #0b4a4a;
+            --primary-light: #0f5d5d;
+            --bg: #f4f7fb;
+            --text: #102a43;
+            --muted: #6b7280;
+            --card-bg: #ffffff;
+            --btn-radius: 999px;
+            --shadow-soft: 0 18px 40px rgba(15, 23, 42, 0.08);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: "Inter", sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+        }
+
+        a {
+            text-decoration: none;
+            color: inherit;
+        }
+
+        .navbar {
+            background: var(--primary);
+            color: #fff;
+            padding: 0 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 50;
+            height: 70px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .nav-left {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .nav-left img {
+            width: 50px;
+            height: 50px;
+            object-fit: contain;
+            border: 3px solid white;
+            border-radius: 50%;
+            padding: 5px;
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .nav-brand {
+            font-weight: 700;
+            font-size: 20px;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 30px;
+            align-items: center;
+        }
+
+        .nav-link {
+            color: white;
+            text-decoration: none;
+            font-size: 14px;
+            transition: opacity 0.3s ease;
+        }
+
+        .nav-link:hover {
+            opacity: 0.8;
+        }
+
+        /* Hamburger Menu */
+        .hamburger {
+            display: none;
+            flex-direction: column;
+            cursor: pointer;
+            gap: 5px;
+        }
+
+        .hamburger span {
+            width: 25px;
+            height: 3px;
+            background: white;
+            border-radius: 2px;
+            transition: all 0.3s ease;
+        }
+
+        .hamburger.active span:nth-child(1) {
+            transform: rotate(45deg) translate(10px, 10px);
+        }
+
+        .hamburger.active span:nth-child(2) {
+            opacity: 0;
+        }
+
+        .hamburger.active span:nth-child(3) {
+            transform: rotate(-45deg) translate(7px, -7px);
+        }
+
+        /* Mobile Menu */
+        .mobile-menu {
+            display: none;
+            position: absolute;
+            top: 70px;
+            left: 0;
+            right: 0;
+            background: var(--primary);
+            flex-direction: column;
+            padding: 20px;
+            gap: 15px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            z-index: 40;
+        }
+
+        .mobile-menu.active {
+            display: flex;
+        }
+
+        .mobile-menu .nav-link {
+            padding: 12px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .mobile-menu .nav-link:last-child {
+            border-bottom: none;
+        }
+
+        .mobile-menu .live-nav {
+            background: #e74c3c;
+            color: white !important;
+            border-radius: 12px;
+            padding: 12px 16px;
+            font-weight: 700;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 3px 10px rgba(231, 76, 60, 0.35);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            align-self: flex-start;
+            width: auto;
+        }
+
+        .nav-link.active::after {
+            content: "";
+            display: none;
+        }
+
+        .btn-live-monitor {
+            background: #e74c3c !important;
+            color: white !important;
+            border: none !important;
+            padding: 10px 20px !important;
+            border-radius: 25px !important;
+            cursor: pointer !important;
+            font-weight: 600 !important;
+            font-size: 14px !important;
+            transition: all 0.3s ease !important;
+            display: flex !important;
+            align-items: center !important;
+            gap: 8px !important;
+            box-shadow: 0 2px 8px rgba(231, 76, 60, 0.3) !important;
+        }
+
+        .btn-live-monitor:hover {
+            background: #c0392b !important;
+            transform: translateY(-2px) !important;
+            box-shadow: 0 4px 12px rgba(231, 76, 60, 0.4) !important;
+        }
+
+        .btn-live-monitor:active {
+            transform: translateY(0) !important;
+        }
+
+
+        /* ===== SIGNUP CARD ===== */
+        .card {
+            width: 360px;
+            margin: 80px auto;
+            background: white;
+            padding: 35px;
+            border-radius: 18px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+            color: var(--primary);
+        }
+
+        .card h2 {
+            text-align: center;
+            margin-bottom: 22px;
+            font-size: 24px;
+            font-weight: 600;
+        }
+
+        label {
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        input {
+            width: 100%;
+            padding: 12px;
+            margin-top: 6px;
+            margin-bottom: 14px;
+            border-radius: 10px;
+            border: 1px solid #cbd5e1;
+            font-size: 14px;
+        }
+
+        input::placeholder {
+            color: #94a3b8;
+        }
+
+        button {
+            width: 100%;
+            padding: 14px;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 30px;
+            font-size: 16px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+
+        button:hover {
+            opacity: 0.9;
+        }
+
+        .login-text {
+            margin-top: 18px;
+            text-align: center;
+            font-size: 14px;
+        }
+
+        .login-text a {
+            color: var(--primary);
+            font-weight: 600;
+            text-decoration: none;
+        }
+
+        @media (max-width: 768px) {
+            .navbar {
+                padding: 0 20px;
+            }
+
+            .nav-links {
+                display: none;
+            }
+
+            .hamburger {
+                display: flex;
+            }
+
+            .card {
+                margin: 40px auto;
+                padding: 25px;
+            }
+        }
+
+        /* Flash message */
+        .flash {
+            color: red;
+            text-align: center;
+            margin-bottom: 15px;
+        }
+
+        /* ===== FOOTER ===== */
+        footer {
+            background: var(--primary);
+            color: white;
+            text-align: center;
+            padding: 25px 40px;
+            margin-top: 60px;
+            box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.1);
+            font-size: 14px;
+            font-weight: 500;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- NAVBAR -->
+    <header class="navbar">
+        <div class="nav-left">
+            <img src="/static/fall_logo.png" alt="SmartFall Logo">
+            <div class="nav-brand">SmartFall</div>
+        </div>
+
+        <nav class="nav-links">
+            <a href="{{ url_for('home') }}" class="nav-link active">Home</a>
+            <a href="{{ url_for('about') }}" class="nav-link">About</a>
+            <a href="{{ url_for('upload_page') }}" class="nav-link">Upload</a>
+            <a href="{{ url_for('analytics') }}" class="nav-link">Analytics</a>
+            <a href="{{ url_for('live') if session.get('user') else url_for('login') }}" class="btn-live-monitor">🔴 Live Monitor</a>
+        </nav>
+
+        <div class="hamburger" id="hamburger">
+          <span></span>
+          <span></span>
+          <span></span>
+        </div>
+    </header>
+
+    <!-- Mobile Menu -->
+    <nav class="mobile-menu" id="mobileMenu">
+        <a href="{{ url_for('home') }}" class="nav-link active">Home</a>
+        <a href="{{ url_for('about') }}" class="nav-link">About</a>
+        <a href="{{ url_for('upload_page') }}" class="nav-link">Upload</a>
+        <a href="{{ url_for('analytics') }}" class="nav-link">Analytics</a>
+        <a href="{{ url_for('live') if session.get('user') else url_for('login') }}" class="nav-link live-nav">🔴 Live Monitor</a>
+    </nav>
+
+    <!-- SIGNUP CARD -->
+    <div class="card">
+        <h2>Create Your Account</h2>
+
+        <!-- Flash messages -->
+        {% with messages = get_flashed_messages() %}
+        {% if messages %}
+        {% for message in messages %}
+        <div class="flash">{{ message }}</div>
+        {% endfor %}
+        {% endif %}
+        {% endwith %}
+
+        <form method="POST" action="/signup">
+            <label>Full Name</label>
+            <input type="text" name="fullname" placeholder="John Doe" required>
+
+            <label>Email Address</label>
+            <input type="email" name="email" placeholder="john.doe@example.com" required>
+
+            <label>Password</label>
+            <input type="password" name="password" placeholder="Enter password" required>
+
+            <label>Confirm Password</label>
+            <input type="password" name="confirm_password" placeholder="Re-enter password" required>
+
+            <button type="submit">Sign Up</button>
+        </form>
+
+        <p class="login-text">
+            Already have an account?
+            <a href="/login">Login</a>
+        </p>
+    </div>
+
+    <!-- FOOTER -->
+    {% include 'footer.html' %}
+
+    <script>
+        // Hamburger menu toggle
+        const hamburger = document.getElementById('hamburger');
+        const mobileMenu = document.getElementById('mobileMenu');
+
+        hamburger.addEventListener('click', () => {
+          hamburger.classList.toggle('active');
+          mobileMenu.classList.toggle('active');
+        });
+
+        // Close menu when a link is clicked
+        document.querySelectorAll('.mobile-menu .nav-link').forEach(link => {
+          link.addEventListener('click', () => {
+            hamburger.classList.remove('active');
+            mobileMenu.classList.remove('active');
+          });
+        });
+
+        function showLoginModal() {
+            // Redirect to login page
+            window.location.href = "{{ url_for('login') }}";
+        }
+    </script>
+
+</body>
+
+</html>

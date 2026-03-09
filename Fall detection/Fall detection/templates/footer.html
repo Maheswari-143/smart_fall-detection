@@ -1,0 +1,173 @@
+
+ <!-- FOOTER -->
+<style>
+    footer {
+        background: #0b4a4a;
+        color: white;
+        padding: 60px 40px 30px;
+        margin-top: auto;
+        box-shadow: 0 -2px 8px rgba(0,0,0,0.1);
+    }
+    .footer-container {
+        max-width: 1400px;
+        margin: 0 auto;
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr;
+        gap: 3rem;
+        padding-bottom: 40px;
+        border-bottom: 1px solid rgba(255,255,255,0.1);
+        align-items: flex-start;
+    }
+    .footer-container > div {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 12px;
+        text-align: center;
+    }
+    .footer-container img {
+        width: 52px;
+        height: 52px;
+        border-radius: 50%;
+        background: rgba(255,255,255,0.12);
+        padding: 6px;
+    }
+    .footer-container h3 {
+        font-size: 1.45rem;
+        font-weight: 700;
+        margin: 0;
+    }
+    .footer-container p {
+        max-width: 200px;
+        font-size: 0.85rem;
+        opacity: 0.9;
+        margin: 0;
+        color: white;
+    }
+    .footer-container a {
+        color: white;
+        text-decoration: none;
+        transition: opacity 0.3s ease;
+        font-size: 0.95rem;
+    }
+    .footer-container a:hover {
+        opacity: 0.7;
+    }
+    .footer-icons {
+        display: flex;
+        gap: 12px;
+        margin-top: 8px;
+    }
+    .footer-icons a {
+        width: 42px;
+        height: 42px;
+        border-radius: 50%;
+        background: rgba(255,255,255,0.15);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+    }
+    .footer-icons a:hover {
+        background: rgba(255,255,255,0.25);
+        transform: translateY(-3px);
+    }
+    .footer-bottom {
+        text-align: center;
+        padding-top: 30px;
+        margin-top: 30px;
+        font-size: 14px;
+        opacity: 0.9;
+    }
+    /* Responsive Design */
+    @media (max-width: 1024px) {
+        .footer-container {
+            gap: 2rem;
+        }
+    }
+    @media (max-width: 768px) {
+        footer {
+            padding: 40px 20px 20px;
+        }
+        .footer-container {
+            grid-template-columns: 1fr;
+            gap: 2rem;
+            padding-bottom: 30px;
+        }
+        .footer-container p {
+            font-size: 0.8rem;
+        }
+        .footer-container a {
+            font-size: 0.9rem;
+        }
+        .footer-icons a {
+            width: 38px;
+            height: 38px;
+            font-size: 0.9rem;
+        }
+    }
+    @media (max-width: 480px) {
+        footer {
+            padding: 30px 15px 15px;
+        }
+        .footer-container {
+            gap: 1.5rem;
+            padding-bottom: 20px;
+        }
+        .footer-container h3 {
+            font-size: 1.2rem;
+        }
+        .footer-container img {
+            width: 45px;
+            height: 45px;
+        }
+        .footer-icons a {
+            width: 35px;
+            height: 35px;
+            font-size: 0.8rem;
+        }
+    }
+</style>
+
+<footer>
+    <div class="footer-container">
+        <!-- Logo + Title (LEFT) -->
+        <div>
+            <img src="/static/fall_logo.png" alt="SmartFall">
+            <h3>SmartFall</h3>
+            <p>AI-powered fall detection for safety.</p>
+        </div>
+
+        <!-- Navigation Links (MIDDLE) -->
+        <div>
+            <a href="{{ url_for('home') }}">Home</a>
+            <a href="{{ url_for('about') }}">About</a>
+            <a href="{{ url_for('upload_page') }}">Upload</a>
+            <a href="{{ url_for('analytics') }}">Analytics</a>
+            <a href="{{ url_for('dashboard') if session.get('user') else url_for('login') }}">Dashboard</a>
+            <a href="{{ url_for('live') }}">Live Monitor</a>
+            <a href="{{ url_for('contact_page') if session.get('user') else url_for('login') }}">Contact</a>
+        </div>
+
+        <!-- Icons (RIGHT) -->
+        <div>
+            <p style="margin-bottom: 8px; font-weight: 600;">Connect With Us</p>
+            <div class="footer-icons">
+                <a href="mailto:25workproject123@gmail.com" title="Email">
+                    <i class="fa-solid fa-envelope"></i>
+                </a>
+                <a href="https://www.instagram.com/detection_960" target="_blank" title="Instagram">
+                    <i class="fa-brands fa-instagram"></i>
+                </a>
+                <a href="https://www.youtube.com/@pro-267z" target="_blank" title="YouTube">
+                    <i class="fa-brands fa-youtube"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="footer-bottom">
+        © 2025 SmartFall. All rights reserved.
+    </div>
+</footer>
