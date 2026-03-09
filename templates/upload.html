@@ -1,0 +1,848 @@
+{# jinja2 #}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SmartFall – Video Upload & Analysis</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.1/css/all.min.css"
+        integrity="sha512-5Hs3dF2AEPkpNAR7UiOHba+lRSJNeM2ECkwxUIxC1Q/FLycGTbNapWXB4tP889k5T5Ju8fs4b1P5z/iB4nMfSQ=="
+        crossorigin="anonymous" referrerpolicy="no-referrer" />
+  <style>
+    :root {
+            --primary: #0b4a4a;
+            --primary-light: #0f5d5d;
+            --bg: #f4f7fb;
+            --text: #102a43;
+            --muted: #6b7280;
+            --card-bg: #ffffff;
+            --btn-radius: 999px;
+            --shadow-soft: 0 18px 40px rgba(15, 23, 42, 0.08);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: "Inter", sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+        }
+
+        a {
+            text-decoration: none;
+            color: inherit;
+        }
+
+        .navbar {
+            background: var(--primary);
+            color: #fff;
+            padding: 0 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 50;
+            height: 70px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .nav-left {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .nav-left img {
+            width: 50px;
+            height: 50px;
+            object-fit: contain;
+            border: 3px solid white;
+            border-radius: 50%;
+            padding: 5px;
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .nav-brand {
+            font-weight: 700;
+            font-size: 20px;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 30px;
+            align-items: center;
+        }
+
+        .nav-link {
+            color: white;
+            text-decoration: none;
+            font-size: 14px;
+            transition: opacity 0.3s ease;
+        }
+
+        .nav-link:hover {
+            opacity: 0.8;
+        }
+
+        /* Hamburger Menu */
+        .hamburger {
+            display: none;
+            flex-direction: column;
+            cursor: pointer;
+            gap: 5px;
+        }
+
+        .hamburger span {
+            width: 25px;
+            height: 3px;
+            background: white;
+            border-radius: 2px;
+            transition: all 0.3s ease;
+        }
+
+        .hamburger.active span:nth-child(1) {
+            transform: rotate(45deg) translate(10px, 10px);
+        }
+
+        .hamburger.active span:nth-child(2) {
+            opacity: 0;
+        }
+
+        .hamburger.active span:nth-child(3) {
+            transform: rotate(-45deg) translate(7px, -7px);
+        }
+
+        /* Mobile Menu */
+        .mobile-menu {
+            display: none;
+            position: absolute;
+            top: 70px;
+            left: 0;
+            right: 0;
+            background: var(--primary);
+            flex-direction: column;
+            padding: 20px;
+            gap: 15px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            z-index: 40;
+        }
+
+        .mobile-menu.active {
+            display: flex;
+        }
+
+        .mobile-menu .nav-link {
+            padding: 12px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .mobile-menu .nav-link:last-child {
+            border-bottom: none;
+        }
+
+        .nav-link.active::after {
+            content: "";
+            display: none;
+        }
+
+        .btn-live-monitor {
+            background: #e74c3c !important;
+            color: white !important;
+            border: none !important;
+            padding: 10px 20px !important;
+            border-radius: 25px !important;
+            cursor: pointer !important;
+            font-weight: 600 !important;
+            font-size: 14px !important;
+            transition: all 0.3s ease !important;
+            display: flex !important;
+            align-items: center !important;
+            gap: 8px !important;
+            box-shadow: 0 2px 8px rgba(231, 76, 60, 0.3) !important;
+        }
+
+        .btn-live-monitor:hover {
+            background: #c0392b !important;
+            transform: translateY(-2px) !important;
+            box-shadow: 0 4px 12px rgba(231, 76, 60, 0.4) !important;
+        }
+
+        .btn-live-monitor:active {
+            transform: translateY(0) !important;
+        }
+
+
+    .main {
+      padding: 40px 60px 50px;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .page-header {
+      margin-bottom: 30px;
+    }
+
+    .page-title {
+      font-size: 28px;
+      color: #0c4a5b;
+      margin-bottom: 8px;
+      font-weight: 700;
+    }
+
+    .page-subtitle {
+      font-size: 14px;
+      color: #666;
+    }
+
+    .card {
+      background: #ffffff;
+      border-radius: 12px;
+      border: 1px solid #ddd;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+      padding: 25px;
+    }
+
+    .upload-area {
+      border: 2px dashed #ccc;
+      border-radius: 10px;
+      padding: 40px;
+      text-align: center;
+      color: #666;
+      cursor: pointer;
+      background: #fafafa;
+      min-height: 300px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.3s ease;
+      margin-bottom: 20px;
+    }
+
+    .upload-area:hover {
+      border-color: #0c4a5b;
+      background: #f0f5f7;
+    }
+
+    .upload-icon {
+      font-size: 48px;
+      margin-bottom: 10px;
+    }
+
+    .btn-upload {
+      width: 100%;
+      padding: 12px;
+      border-radius: 8px;
+      border: none;
+      background: #1e8449;
+      color: white;
+      font-weight: 600;
+      cursor: pointer;
+      margin-bottom: 10px;
+      opacity: 0.6;
+      transition: all 0.3s ease;
+    }
+
+    .btn-upload.enabled {
+      opacity: 1;
+    }
+
+    .btn-upload.enabled:hover {
+      background: #0d5f2c;
+    }
+
+    video {
+      width: 100%;
+      border-radius: 8px;
+      margin: 20px 0;
+    }
+
+    .progress-container {
+      display: none;
+      margin: 20px 0;
+      padding: 30px;
+      background: linear-gradient(135deg, #f5f5f5 0%, #ffffff 100%);
+      border-radius: 12px;
+      border: 2px solid #e0e0e0;
+      text-align: center;
+    }
+
+    .progress-container h3 {
+      font-size: 20px;
+      color: #0c4a5b;
+      margin-bottom: 15px;
+      font-weight: 700;
+    }
+
+    .progress-bar {
+      width: 100%;
+      height: 35px;
+      background: #e0e0e0;
+      border-radius: 8px;
+      overflow: hidden;
+      margin-bottom: 20px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #4CAF50, #45a049);
+      width: 0%;
+      transition: width 0.3s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-weight: bold;
+      font-size: 14px;
+    }
+
+    .results-summary {
+      display: none;
+      background: #f5f5f5;
+      padding: 20px;
+      border-radius: 8px;
+      margin-top: 20px;
+    }
+
+    .results-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 15px;
+      margin-bottom: 20px;
+    }
+
+    .result-box {
+      background: white;
+      padding: 20px;
+      border-radius: 8px;
+      border-left: 4px solid #4CAF50;
+    }
+
+    .result-label {
+      font-size: 14px;
+      color: #666;
+      margin-bottom: 5px;
+    }
+
+    .result-value {
+      font-size: 32px;
+      font-weight: bold;
+      color: #4CAF50;
+    }
+
+    footer {
+            background: var(--primary);
+            color: white;
+            padding: 60px 40px 30px;
+            margin-top: auto;
+            box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .footer-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 3rem;
+            padding-bottom: 40px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .footer-section {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .footer-logo-section {
+            display: flex;
+            align-items: center;
+            gap: 18px;
+            margin-bottom: 1.2rem;
+        }
+
+        .footer-logo-section img {
+            width: 55px;
+            height: 55px;
+            object-fit: contain;
+        }
+
+        .footer-section h3 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+        }
+
+        .footer-section p {
+            font-size: 0.95rem;
+            line-height: 1.8;
+            opacity: 0.9;
+        }
+
+        .footer-section .contact-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 0.5rem;
+        }
+
+        .footer-section .social-links {
+            display: flex;
+            gap: 15px;
+            margin-top: 1rem;
+        }
+
+        .footer-section .social-links a {
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.3rem;
+            transition: all 0.3s ease;
+            color: white;
+        }
+
+        .footer-section .social-links a:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-3px);
+        }
+
+        .quick-links {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .quick-links li {
+            margin-bottom: 0.5rem;
+        }
+
+        .quick-links a {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 0.95rem;
+            transition: opacity 0.3s ease;
+            color: white;
+        }
+
+        .quick-links a:hover {
+            opacity: 0.8;
+        }
+
+        .footer-bottom {
+            text-align: center;
+            padding-top: 30px;
+            font-size: 14px;
+            font-weight: 500;
+            opacity: 0.9;
+        }
+
+
+    @media (max-width: 1024px) {
+      .footer-container {
+        gap: 2rem;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .navbar {
+        padding: 0 20px;
+      }
+
+      .nav-links {
+        display: none;
+      }
+
+      .hamburger {
+        display: flex;
+      }
+
+      .main {
+        padding: 20px;
+      }
+
+      footer {
+        padding: 40px 20px 20px;
+      }
+
+      .footer-container {
+        grid-template-columns: 1fr;
+        gap: 2rem;
+        padding-bottom: 30px;
+      }
+
+      .footer-section a {
+        font-size: 0.9rem;
+      }
+
+      .footer-section p {
+        font-size: 0.8rem;
+      }
+
+      .footer-section .social-links a {
+        width: 38px;
+        height: 38px;
+        font-size: 0.9rem;
+      }
+    }
+
+    @media (max-width: 600px) {
+      footer {
+        padding: 30px 15px 15px;
+      }
+
+      .footer-container {
+        gap: 1.5rem;
+        padding-bottom: 20px;
+      }
+
+      .footer-section h3 {
+        font-size: 1.2rem;
+      }
+
+      .footer-logo-section img {
+        width: 45px;
+        height: 45px;
+      }
+
+      .footer-section a {
+        font-size: 0.85rem;
+      }
+
+      .footer-section .social-links a {
+        width: 35px;
+        height: 35px;
+        font-size: 0.8rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- NAVBAR - 5 Items: Home, About, Upload, Dashboard, Live Monitor -->
+  <header class="navbar">
+    <div class="nav-left">
+      <img src="/static/fall_logo.png" alt="Fall Logo">
+      <div class="nav-brand">SmartFall</div>
+    </div>
+
+    <nav class="nav-links">
+      <a href="{{ url_for('home') }}" class="nav-link">Home</a>
+          <a href="{{ url_for('about') }}" class="nav-link">About</a>
+          <a href="{{ url_for('upload_page') }}" class="nav-link active">Upload</a>
+          <a href="{{ url_for('analytics') }}" class="nav-link">Analytics</a>
+          <a href="{{ url_for('live') }}" class="btn-live-monitor">🔴 Live Monitor</a>
+    </nav>
+
+    <div class="hamburger" id="hamburger">
+      <span></span>
+      <span></span>
+      <span></span>
+    </div>
+  </header>
+
+  <!-- Mobile Menu -->
+  <nav class="mobile-menu" id="mobileMenu">
+    <a href="{{ url_for('home') }}" class="nav-link">Home</a>
+    <a href="{{ url_for('about') }}" class="nav-link">About</a>
+    <a href="{{ url_for('upload_page') }}" class="nav-link active">Upload</a>
+    <a href="{{ url_for('analytics') }}" class="nav-link">Analytics</a>
+    <a href="{{ url_for('live') }}" class="nav-link">🔴 Live Monitor</a>
+  </nav>
+
+  <!-- MAIN CONTENT -->
+  <div class="main">
+    <div class="page-header">
+      <h1 class="page-title">Video Upload & Analysis</h1>
+      <p class="page-subtitle">Upload video to detect falls and view analytics on Dashboard</p>
+    </div>
+
+    <div class="card">
+      <h2 style="margin-bottom: 15px; color: #0c4a5b;">Upload Video</h2>
+      <p style="color: #888; margin-bottom: 15px;">Drag & drop or click to select video</p>
+
+      <div class="upload-area" id="dropZone">
+        <div id="uploadPlaceholder">
+    
+          <div style="font-weight: 700; color: #333;">Drag video here</div>
+          <div style="font-size: 12px; color: #999;">or click to browse</div>
+        </div>
+
+        <!-- Processing Progress -->
+        <div id="processingProgress" class="progress-container">
+          <h3 style="color: #333; margin-bottom: 10px;">🔄 Processing Video...</h3>
+          <div id="progressMessage" style="color: #666; font-size: 14px; margin-bottom: 15px;">Starting analysis</div>
+          
+          <!-- Frame Display Canvas -->
+          <canvas id="frameCanvas" width="640" height="480" style="width: 100%; max-width: 100%; border-radius: 8px; margin-bottom: 15px; background: #000;"></canvas>
+          
+          <!-- Frame Counter -->
+          <div style="text-align: center; color: #666; font-size: 14px; margin-bottom: 15px;">
+            Frame <span id="currentFrame">0</span> / <span id="totalFrames">0</span> - <span id="currentTime">00:00:00</span>
+          </div>
+          
+          <div class="progress-bar">
+            <div id="progressBar" class="progress-fill" style="width: 0%;">0%</div>
+          </div>
+          <div style="font-size: 16px; color: #f44336; font-weight: bold;">🚨 Falls Detected: <span id="progressFalls">0</span></div>
+        </div>
+
+        <video id="uploadedVideo" controls style="display: none;"></video>
+
+        <!-- Results Summary -->
+        <div id="resultsSummary" class="results-summary">
+          <h2 style="color: #333; margin-bottom: 20px;">Analysis Complete</h2>
+          <div class="results-grid">
+            <div class="result-box">
+              <div class="result-label">Total Falls Detected</div>
+              <div class="result-value" id="resultsTotalFalls">0</div>
+            </div>
+            <div class="result-box" style="border-left-color: #2196F3;">
+              <div class="result-label">Video Duration</div>
+              <div class="result-value" style="color: #2196F3;" id="resultsDuration">00:00</div>
+            </div>
+          </div>
+
+          <div style="background: white; padding: 20px; border-radius: 8px; margin-bottom: 20px; border-left: 4px solid #FF9800;">
+            <div style="color: #666; margin-bottom: 10px; font-weight: 600;">Detection Events</div>
+            <div id="detectionDetails" style="max-height: 200px; overflow-y: auto; color: #333; font-size: 13px;">
+              <!-- Falls list will appear here -->
+            </div>
+          </div>
+
+          {% if session.get('user') %}
+          <p style="color: #999; font-size: 13px; text-align: center;">Redirecting to Dashboard in 2 seconds...</p>
+          {% else %}
+          <p style="color: #999; font-size: 13px; text-align: center;">Analysis complete! <a href="{{ url_for('login') }}" style="color: #2196F3;">Login</a> to view Live-Monitor.</p>
+          {% endif %}
+        </div>
+      </div>
+
+      <input type="file" id="videoInput" style="display: none;" accept="video/*">
+      <button class="btn-upload" id="uploadBtn" disabled>Start Upload</button>
+      <div style="font-size: 12px; color: #888; text-align: center;" id="fileInfo">No file selected</div>
+    </div>
+  </div>
+
+    <!-- FOOTER -->
+    {% include 'footer.html' %}
+
+
+  <script>
+    // Hamburger menu toggle
+    const hamburger = document.getElementById('hamburger');
+    const mobileMenu = document.getElementById('mobileMenu');
+
+    hamburger.addEventListener('click', () => {
+      hamburger.classList.toggle('active');
+      mobileMenu.classList.toggle('active');
+    });
+
+    // Close menu when a link is clicked
+    document.querySelectorAll('.mobile-menu .nav-link').forEach(link => {
+      link.addEventListener('click', () => {
+        hamburger.classList.remove('active');
+        mobileMenu.classList.remove('active');
+      });
+    });
+
+    const dropZone = document.getElementById('dropZone');
+    const videoInput = document.getElementById('videoInput');
+    const uploadBtn = document.getElementById('uploadBtn');
+    const fileInfo = document.getElementById('fileInfo');
+    const uploadedVideo = document.getElementById('uploadedVideo');
+
+    // Drag and drop
+    dropZone.addEventListener('click', () => videoInput.click());
+    dropZone.addEventListener('dragover', e => {
+      e.preventDefault();
+      dropZone.style.borderColor = '#0c4a5b';
+    });
+    dropZone.addEventListener('dragleave', () => {
+      dropZone.style.borderColor = '#ccc';
+    });
+    dropZone.addEventListener('drop', e => {
+      e.preventDefault();
+      dropZone.style.borderColor = '#ccc';
+      if (e.dataTransfer.files.length > 0) {
+        videoInput.files = e.dataTransfer.files;
+        handleFileChange();
+      }
+    });
+
+    videoInput.addEventListener('change', handleFileChange);
+
+    function handleFileChange() {
+      if (videoInput.files.length > 0) {
+        fileInfo.textContent = `Selected: ${videoInput.files[0].name}`;
+        uploadBtn.disabled = false;
+        uploadBtn.classList.add('enabled');
+      } else {
+        fileInfo.textContent = 'No file selected';
+        uploadBtn.disabled = true;
+        uploadBtn.classList.remove('enabled');
+      }
+    }
+
+    // Poll backend for processing progress and final results
+    let eventSource = null;
+
+    function startProcessingStream() {
+      if (eventSource) {
+        eventSource.close();
+      }
+
+      eventSource = new EventSource('/processing-progress');
+
+      eventSource.onmessage = function(event) {
+        try {
+          const data = JSON.parse(event.data);
+
+          if (!data.active) {
+            // Processing might be done, check results
+            fetchFinalResults();
+            return;
+          }
+
+          // Update progress UI
+          const progress = data.progress || 0;
+          document.getElementById('progressBar').style.width = progress + '%';
+          document.getElementById('progressBar').textContent = progress + '%';
+          document.getElementById('progressMessage').textContent = data.message || 'Processing...';
+          document.getElementById('progressFalls').textContent = data.falls_detected || 0;
+          document.getElementById('currentFrame').textContent = data.current_frame || 0;
+          document.getElementById('totalFrames').textContent = data.total_frames || 0;
+
+          // Display frame image if available
+          if (data.image) {
+            const canvas = document.getElementById('frameCanvas');
+            const ctx = canvas.getContext('2d');
+            const img = new Image();
+            img.onload = function() {
+              ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+            };
+            img.src = 'data:image/jpeg;base64,' + data.image;
+          }
+
+          // Calculate and display time
+          if (data.total_frames > 0 && data.current_frame > 0) {
+            const fps = 30; // Assuming 30 FPS
+            const seconds = Math.floor(data.current_frame / fps);
+            const hours = Math.floor(seconds / 3600);
+            const minutes = Math.floor((seconds % 3600) / 60);
+            const secs = seconds % 60;
+            const timeStr = `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+            document.getElementById('currentTime').textContent = timeStr;
+          }
+
+        } catch (e) {
+          console.error('Error parsing SSE data:', e);
+        }
+      };
+
+      eventSource.onerror = function(error) {
+        console.error('SSE connection error:', error);
+        eventSource.close();
+        eventSource = null;
+        // Fallback to polling
+        fetchFinalResults();
+      };
+    }
+
+    async function fetchFinalResults() {
+      try {
+        const response = await fetch('/processing-result');
+        if (!response.ok) {
+          console.error('Failed to fetch processing result:', response.status);
+          return;
+        }
+        const data = await response.json();
+        console.log('Processing status:', data);
+
+        if (data.status === 'error') {
+          if (eventSource) eventSource.close();
+          alert(data.error || 'Processing failed. Please try again.');
+          document.getElementById('processingProgress').style.display = 'none';
+          return;
+        }
+
+        if (data.status === 'done' && data.results) {
+          console.log('Processing complete!', data.results);
+          if (eventSource) eventSource.close();
+
+          // Hide progress, show results
+          document.getElementById('processingProgress').style.display = 'none';
+          document.getElementById('resultsSummary').style.display = 'block';
+          document.getElementById('resultsTotalFalls').textContent = data.results.total_falls || 0;
+          document.getElementById('resultsDuration').textContent = data.results.video_duration || "00:00";
+
+          // Show detection events
+          const detectionDetails = document.getElementById('detectionDetails');
+          if (data.results.events && data.results.events.length > 0) {
+            detectionDetails.innerHTML = data.results.events
+              .map((e, i) => `<div style="padding: 8px; border-bottom: 1px solid #eee;">
+                <strong>${i + 1}.</strong> ${e.time} - ${e.event} (Confidence: ${e.confidence})
+              </div>`)
+              .join('');
+          } else {
+            detectionDetails.innerHTML = '<div style="padding: 10px; color: #999;">No falls detected</div>';
+          }
+
+          // Auto-redirect to Analytics after 2 seconds
+          setTimeout(() => {
+            window.location.href = '/analytics';
+          }, 2000);
+        }
+      } catch (e) {
+        console.error('Error fetching results:', e);
+      }
+    }
+
+    // Upload handler
+    uploadBtn.addEventListener('click', async () => {
+      const file = videoInput.files[0];
+      if (!file) return alert("Select a video file");
+
+      console.log('Starting upload:', file.name);
+      uploadBtn.disabled = true;
+      uploadBtn.textContent = "Uploading...";
+
+      const formData = new FormData();
+      formData.append("video", file);
+      formData.append("quick", "1");
+
+      document.getElementById('uploadPlaceholder').style.display = 'none';
+      document.getElementById('processingProgress').style.display = 'block';
+
+      try {
+        console.log('Sending upload request...');
+        const response = await fetch("/upload", { method: "POST", body: formData });
+        const result = await response.json();
+        console.log('Upload response:', result);
+
+        if (!response.ok) throw new Error(result.error);
+        
+        // Start real-time SSE stream for processing updates
+        startProcessingStream();
+
+      } catch (err) {
+        console.error('Upload error:', err);
+        alert("Error: " + err.message);
+        document.getElementById('processingProgress').style.display = 'none';
+      }
+
+      uploadBtn.disabled = false;
+      uploadBtn.textContent = "Start Upload";
+    });
+  </script>
+</body>
+</html>

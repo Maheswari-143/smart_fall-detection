@@ -1,0 +1,726 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <title>Smart Fall Detection - Real-Time Safety</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <!-- Google Font -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.1/css/all.min.css"
+        integrity="sha512-5Hs3dF2AEPkpNAR7UiOHba+lRSJNeM2ECkwxUIxC1Q/FLycGTbNapWXB4tP889k5T5Ju8fs4b1P5z/iB4nMfSQ=="
+        crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+    <style>
+        :root {
+            --primary: #0b4a4a;
+            --primary-light: #0f5d5d;
+            --bg: #f4f7fb;
+            --text: #102a43;
+            --muted: #6b7280;
+            --card-bg: #ffffff;
+            --btn-radius: 999px;
+            --shadow-soft: 0 18px 40px rgba(15, 23, 42, 0.08);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: "Inter", sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+        }
+
+        a {
+            text-decoration: none;
+            color: inherit;
+        }
+
+        .navbar {
+            background: var(--primary);
+            color: #fff;
+            padding: 0 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 50;
+            height: 70px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .nav-left {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .nav-left img {
+            width: 50px;
+            height: 50px;
+            object-fit: contain;
+            border: 3px solid white;
+            border-radius: 50%;
+            padding: 5px;
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .nav-brand {
+            font-weight: 700;
+            font-size: 20px;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 30px;
+            align-items: center;
+        }
+
+        .nav-link {
+            color: white;
+            text-decoration: none;
+            font-size: 14px;
+            transition: opacity 0.3s ease;
+        }
+
+        .nav-link:hover {
+            opacity: 0.8;
+        }
+
+        /* Hamburger Menu */
+        .hamburger {
+            display: none;
+            flex-direction: column;
+            cursor: pointer;
+            gap: 5px;
+        }
+
+        .hamburger span {
+            width: 25px;
+            height: 3px;
+            background: white;
+            border-radius: 2px;
+            transition: all 0.3s ease;
+        }
+
+        .hamburger.active span:nth-child(1) {
+            transform: rotate(45deg) translate(10px, 10px);
+        }
+
+        .hamburger.active span:nth-child(2) {
+            opacity: 0;
+        }
+
+        .hamburger.active span:nth-child(3) {
+            transform: rotate(-45deg) translate(7px, -7px);
+        }
+
+        /* Mobile Menu */
+        .mobile-menu {
+            display: none;
+            position: absolute;
+            top: 70px;
+            left: 0;
+            right: 0;
+            background: var(--primary);
+            flex-direction: column;
+            padding: 20px;
+            gap: 15px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            z-index: 40;
+        }
+
+        .mobile-menu.active {
+            display: flex;
+        }
+
+        .mobile-menu .nav-link {
+            padding: 12px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .mobile-menu .nav-link:last-child {
+            border-bottom: none;
+        }
+
+        .mobile-menu .live-nav {
+            background: #e74c3c;
+            color: white !important;
+            border-radius: 12px;
+            padding: 12px 16px;
+            font-weight: 700;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 3px 10px rgba(231, 76, 60, 0.35);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            align-self: flex-start;
+            width: auto;
+        }
+
+        .nav-link.active::after {
+            content: "";
+            display: none;
+        }
+
+        .btn-live-monitor {
+            background: #e74c3c !important;
+            color: white !important;
+            border: none !important;
+            padding: 10px 20px !important;
+            border-radius: 25px !important;
+            cursor: pointer !important;
+            font-weight: 600 !important;
+            font-size: 14px !important;
+            transition: all 0.3s ease !important;
+            display: flex !important;
+            align-items: center !important;
+            gap: 8px !important;
+            box-shadow: 0 2px 8px rgba(231, 76, 60, 0.3) !important;
+        }
+
+        .btn-live-monitor:hover {
+            background: #c0392b !important;
+            transform: translateY(-2px) !important;
+            box-shadow: 0 4px 12px rgba(231, 76, 60, 0.4) !important;
+        }
+
+        .btn-live-monitor:active {
+            transform: translateY(0) !important;
+        }
+
+
+        /* MAIN CONTENT */
+        main {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* HERO SECTION - TWO COLUMN LAYOUT */
+        .hero {
+            padding: 4rem 6vw;
+            flex: 1;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            align-items: center;
+            gap: 4rem;
+            max-width: 1400px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        .hero-content {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .hero-eyebrow {
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.16em;
+            font-weight: 600;
+            color: var(--primary-light);
+            margin: 0;
+        }
+
+        .hero-title {
+            font-size: clamp(2.3rem, 4vw, 2.9rem);
+            line-height: 1.15;
+            font-weight: 700;
+            margin: 0;
+        }
+
+        .hero-text {
+            color: var(--muted);
+            font-size: 0.98rem;
+            margin: 0;
+            line-height: 1.7;
+        }
+
+        .hero-cta {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .btn-primary {
+            border: none;
+            outline: none;
+            padding: 0.75rem 1.9rem;
+            border-radius: var(--btn-radius);
+            background: var(--primary);
+            color: #ffffff;
+            font-weight: 600;
+            font-size: 0.95rem;
+            cursor: pointer;
+            box-shadow: 0 14px 32px rgba(15, 118, 110, 0.35);
+            transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-light);
+            transform: translateY(-1px);
+            box-shadow: 0 18px 40px rgba(15, 118, 110, 0.5);
+        }
+
+        .btn-primary:active {
+            transform: translateY(0);
+            box-shadow: 0 10px 24px rgba(15, 118, 110, 0.3);
+        }
+
+        /* HERO IMAGE SLIDESHOW */
+        .hero-image {
+            width: 100%;
+            max-width: 500px;
+            border-radius: 1.5rem;
+            overflow: hidden;
+            box-shadow: var(--shadow-soft);
+            background: #ffffff;
+            position: relative;
+            height: 400px;
+        }
+
+        .hero-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            position: absolute;
+            top: 0;
+            left: 0;
+            opacity: 0;
+            transition: opacity 1s ease-in-out;
+        }
+
+        .hero-image img.active {
+            opacity: 1;
+        }
+
+        /* FEATURES SECTION - HIDDEN BY DEFAULT */
+        .features-wrapper {
+            padding: 4rem 6vw;
+            max-width: 1400px;
+            margin: 0 auto;
+            width: 100%;
+            max-height: 0;
+            opacity: 0;
+            overflow: hidden;
+            transition: max-height 0.6s ease, opacity 0.6s ease, padding 0.6s ease;
+        }
+
+        .features-wrapper.show {
+            max-height: 1000px;
+            opacity: 1;
+        }
+
+        .section-title {
+            text-align: center;
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 2.5rem;
+        }
+
+        .cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 2rem;
+            justify-content: center;
+        }
+
+        .card {
+            background: rgba(11, 74, 74, 0.05);
+            border-radius: 1.25rem;
+            padding: 2rem;
+            box-shadow: var(--shadow-soft);
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 0.8rem;
+            border: 2px solid rgba(11, 74, 74, 0.1);
+            transition: border-color 0.3s ease, box-shadow 0.3s ease, transform 0.3s ease, background 0.3s ease;
+            cursor: pointer;
+        }
+
+        .card:hover {
+            transform: scale(1.05);
+            border: 2px solid rgba(11, 74, 74, 0.2);
+            background: rgba(11, 74, 74, 0.08);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            box-shadow: 0 18px 40px rgba(11, 74, 74, 0.2);
+        }
+
+        .card-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 999px;
+            border: 2px solid var(--primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.3rem;
+            color: var(--primary);
+        }
+
+        .card-title {
+            font-weight: 600;
+            font-size: 1.1rem;
+        }
+
+        .card-text {
+            font-size: 0.9rem;
+            color: var(--muted);
+            line-height: 1.6;
+        }
+
+        /* FOOTER */
+        footer {
+            background: var(--primary);
+            color: white;
+            padding: 60px 40px 30px;
+            margin-top: auto;
+            box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .footer-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr 1fr;
+            gap: 3rem;
+            padding-bottom: 40px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .footer-section {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .footer-logo-section {
+            display: flex;
+            align-items: center;
+            gap: 18px;
+            margin-bottom: 1.2rem;
+        }
+
+        .footer-logo-section img {
+            width: 55px;
+            height: 55px;
+            object-fit: contain;
+        }
+
+        .footer-section h3 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+        }
+
+        .footer-section p {
+            font-size: 0.95rem;
+            line-height: 1.8;
+            opacity: 0.9;
+        }
+
+        .footer-section .contact-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 0.5rem;
+        }
+
+        .footer-section .social-links {
+            display: flex;
+            gap: 15px;
+            margin-top: 1rem;
+        }
+
+        .footer-section .social-links a {
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.3rem;
+            transition: all 0.3s ease;
+            color: white;
+        }
+
+        .footer-section .social-links a:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-3px);
+        }
+
+        .quick-links {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .quick-links li {
+            margin-bottom: 0.5rem;
+        }
+
+        .quick-links a {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 0.95rem;
+            transition: opacity 0.3s ease;
+            color: white;
+        }
+
+        .quick-links a:hover {
+            opacity: 0.8;
+        }
+
+        .footer-bottom {
+            text-align: center;
+            padding-top: 30px;
+            font-size: 14px;
+            font-weight: 500;
+            opacity: 0.9;
+        }
+
+        /* RESPONSIVE */
+        @media (max-width: 1024px) {
+            .hero {
+                grid-template-columns: 1fr;
+                gap: 2rem;
+                padding: 3rem 4vw;
+            }
+
+            .hero-image {
+                max-width: 100%;
+                height: 350px;
+            }
+
+            .footer-container {
+                grid-template-columns: 1fr;
+                gap: 2.5rem;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .navbar {
+                padding: 0 20px;
+            }
+
+            .nav-links {
+                display: none;
+            }
+
+            .hamburger {
+                display: flex;
+            }
+
+            .hero {
+                padding: 2rem 5vw;
+                gap: 1.5rem;
+            }
+
+            .hero-title {
+                font-size: 1.8rem;
+            }
+
+            .hero-image {
+                height: 300px;
+            }
+
+            .features-wrapper {
+                padding: 2rem 5vw;
+            }
+
+            .cards {
+                grid-template-columns: 1fr;
+            }
+
+            footer {
+                padding: 40px 20px 20px;
+            }
+
+            .footer-container {
+                gap: 2rem;
+            }
+        }
+
+        @media (max-width: 600px) {
+            .nav-links {
+                gap: 15px;
+                font-size: 12px;
+            }
+
+            .nav-left {
+                gap: 10px;
+                font-size: 16px;
+            }
+
+            .logo-box {
+                width: 40px;
+                height: 40px;
+            }
+
+            .hero-eyebrow {
+                font-size: 0.75rem;
+            }
+
+            .hero-title {
+                font-size: 1.5rem;
+            }
+
+            .btn-primary {
+                padding: 0.6rem 1.5rem;
+                font-size: 0.9rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- NAVBAR -->
+    <header class="navbar">
+        <div class="nav-left">
+            <img src="/static/fall_logo.png" alt="Fall Logo">
+            <div class="nav-brand">SmartFall</div>
+        </div>
+
+                <nav class="nav-links">
+                        <a href="{{ url_for('home') }}" class="nav-link">Home</a>
+                    <a href="{{ url_for('about') }}" class="nav-link">About</a>
+                    <a href="{{ url_for('upload_page') }}" class="nav-link">Upload</a>
+                    <a href="{{ url_for('analytics') }}" class="nav-link active">Analytics</a>
+                    <a href="{{ url_for('live') if session.get('user') else url_for('login') }}" class="btn-live-monitor">🔴 Live Monitor</a>
+                </nav>
+
+        <div class="hamburger" id="hamburger">
+          <span></span>
+          <span></span>
+          <span></span>
+        </div>
+    </header>
+
+    <!-- Mobile Menu -->
+    <nav class="mobile-menu" id="mobileMenu">
+        <a href="{{ url_for('home') }}" class="nav-link">Home</a>
+        <a href="{{ url_for('about') }}" class="nav-link">About</a>
+        <a href="{{ url_for('upload_page') }}" class="nav-link">Upload</a>
+        <a href="{{ url_for('analytics') }}" class="nav-link">Analytics</a>
+        <a href="{{ url_for('live') if session.get('user') else url_for('login') }}" class="nav-link live-nav">🔴 Live Monitor</a>
+    </nav>
+
+    <!-- MAIN CONTENT -->
+    <main>
+        <!-- HERO SECTION -->
+        <section class="hero">
+            <div class="hero-content">
+                <p class="hero-eyebrow">AI-POWERED SAFETY</p>
+
+                <h1 class="hero-title">
+                    Smart Fall Detection.<br>Real-Time Safety.
+                </h1>
+
+                <p class="hero-text">
+                    Leveraging cutting-edge YOLOv8 technology, our system provides unparalleled
+                    accuracy and speed in detecting falls, ensuring immediate alerts and proactive
+                    care. Designed for reliability in various environments, it's the future of elder
+                    care and personal safety.
+                </p>
+
+                <div class="hero-cta">
+                    <button class="btn-primary" id="learnMoreBtn">Learn More</button>
+                </div>
+            </div>
+
+            <!-- HERO SLIDESHOW -->
+            <div class="hero-image">
+                <img class="slide active"
+                    src="https://hikvision.az/wp-content/uploads/2024/01/radar-sensors-_media4.jpg"
+                    alt="Fall detection radar sensors">
+                <img class="slide"
+                    src="https://site-media.latticeworkinc.com/site/assets/files/1249/banner-senior-fall.1120x630.webp"
+                    alt="Slip and fall detector system">
+                <img class="slide"
+                    src="https://agetechworld.co.uk/wp-content/uploads/2021/11/AdobeStock_356032855-1000x600.jpeg"
+                    alt="Elderly fall monitoring illustration">
+                <img class="slide"
+                    src="https://metapress.com/wp-content/uploads/2024/02/How-Fall-Detection-Devices-Prevent-Elderly-Injuries.jpeg"
+                    alt="Fall detection devices">
+            </div>
+        </section>
+
+        <!-- FEATURES SECTION - HIDDEN BY DEFAULT -->
+        <section class="features-wrapper" id="featuresSection">
+            <h2 class="section-title">Why Choose Our System?</h2>
+
+            <div class="cards">
+                <!-- Card 1 -->
+                <article class="card">
+                    <div class="card-icon">
+                        <i class="fa-solid fa-wave-square"></i>
+                    </div>
+                    <h3 class="card-title">Real-Time Monitoring</h3>
+                    <p class="card-text">
+                        Continuously monitors activity with advanced AI to detect falls as they
+                        happen, ensuring immediate response.
+                    </p>
+                </article>
+
+                <!-- Card 2 -->
+                <article class="card">
+                    <div class="card-icon">
+                        <i class="fa-solid fa-shield-heart"></i>
+                    </div>
+                    <h3 class="card-title">High Accuracy & Reliability</h3>
+                    <p class="card-text">
+                        Powered by YOLOv8, our system minimizes false alarms and provides precise
+                        fall detection in diverse settings.
+                    </p>
+                </article>
+
+                <!-- Card 3 -->
+                <article class="card">
+                    <div class="card-icon">
+                        <i class="fa-solid fa-bell"></i>
+                    </div>
+                    <h3 class="card-title">Instant Alert System</h3>
+                    <p class="card-text">
+                        Automatically dispatches notifications to caregivers or emergency contacts upon
+                        fall detection, complete with video evidence.
+                    </p>
+                </article>
+            </div>
+        </section>
+    </main>
+
+    <!-- FOOTER -->
+    {% include 'footer.html' %}
+
+<script>
+    // Handle Learn More button click
+    document.getElementById('learnMoreBtn').addEventListener('click', function() {
+        const featuresSection = document.getElementById('featuresSection');
+        featuresSection.classList.toggle('show');
+        
+        // Smooth scroll to features section
+        setTimeout(() => {
+            featuresSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }, 100);
+    });
+</script>
+
+</body>
+
+</html>

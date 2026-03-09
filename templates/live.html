@@ -1,0 +1,689 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <link rel="stylesheet" href="{{ url_for('static', filename='footer.css') }}">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Live Monitor - SmartFall</title>
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.1/css/all.min.css"
+        integrity="sha512-5Hs3dF2AEPkpNAR7UiOHba+lRSJNeM2ECkwxUIxC1Q/FLycGTbNapWXB4tP889k5T5Ju8fs4b1P5z/iB4nMfSQ=="
+        crossorigin="anonymous" referrerpolicy="no-referrer" />
+  <style>
+    :root {
+            --primary: #0b4a4a;
+            --primary-light: #0f5d5d;
+            --bg: #f4f7fb;
+            --text: #102a43;
+            --muted: #6b7280;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: "Inter", sans-serif;
+            background: var(--bg);
+            color: var(--text);
+        }
+
+        /* NAVBAR */
+        .navbar {
+            background: var(--primary);
+            color: #fff;
+            padding: 0 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 50;
+            height: 70px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .nav-left {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .nav-left img {
+            width: 50px;
+            height: 50px;
+            object-fit: contain;
+            border: 3px solid white;
+            border-radius: 50%;
+            padding: 5px;
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .nav-brand {
+            font-size: 20px;
+            font-weight: 700;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 30px;
+            align-items: center;
+        }
+
+        .nav-link {
+            color: white;
+            text-decoration: none;
+            font-size: 14px;
+            transition: opacity 0.3s ease;
+        }
+
+        .nav-link:hover {
+            opacity: 0.8;
+        }
+
+        /* Hamburger Menu */
+        .hamburger {
+            display: none;
+            flex-direction: column;
+            cursor: pointer;
+            gap: 5px;
+        }
+
+        .hamburger span {
+            width: 25px;
+            height: 3px;
+            background: white;
+            border-radius: 2px;
+            transition: all 0.3s ease;
+        }
+
+        .hamburger.active span:nth-child(1) {
+            transform: rotate(45deg) translate(10px, 10px);
+        }
+
+        .hamburger.active span:nth-child(2) {
+            opacity: 0;
+        }
+
+        .hamburger.active span:nth-child(3) {
+            transform: rotate(-45deg) translate(7px, -7px);
+        }
+
+        /* Mobile Menu */
+        .mobile-menu {
+            display: none;
+            position: absolute;
+            top: 70px;
+            left: 0;
+            right: 0;
+            background: var(--primary);
+            flex-direction: column;
+            padding: 20px;
+            gap: 15px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            z-index: 40;
+        }
+
+        .mobile-menu.active {
+            display: flex;
+        }
+
+        .mobile-menu .nav-link {
+            padding: 12px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .mobile-menu .nav-link:last-child {
+            border-bottom: none;
+        }
+
+
+    /* CONTENT */
+    .content {
+      margin-left: 0;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      min-height: calc(100vh - 70px);
+      box-sizing: border-box;
+      overflow: visible;
+    }
+
+    .content h2 {
+      margin-bottom: 20px;
+      color: #0c4a5b;
+    }
+
+    /* Video Box takes remaining height */
+    .box {
+      width: 95%;
+      flex: 1;
+      /* takes all available vertical space */
+      border: 2px solid #e0e0e0;
+      background: #ffffff;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+      position: relative;
+      margin: 0 auto;
+    }
+
+    #camOffMessage {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: #000;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      font-weight: bold;
+      border-radius: 12px;
+    }
+
+    .box:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.12);
+    }
+
+    #videoFrame {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      border-radius: 12px;
+    }
+
+    /* CONTROLS */
+    .controls {
+      margin-top: 15px;
+      display: flex;
+      gap: 20px;
+      align-items: center;
+      flex-wrap: wrap;
+      padding: 15px;
+      background: #f9f9f9;
+      border-radius: 8px;
+    }
+
+    .controls label {
+      font-weight: bold;
+      color: #0c4a5b;
+    }
+
+    .toggle-switch {
+      width: 50px;
+      height: 28px;
+      background: #ccc;
+      border-radius: 14px;
+      position: relative;
+      cursor: pointer;
+      transition: background 0.3s ease;
+    }
+
+    .toggle-switch.active {
+      background: #1e8449;
+    }
+
+    .toggle-switch::after {
+      content: '';
+      position: absolute;
+      width: 24px;
+      height: 24px;
+      background: white;
+      border-radius: 50%;
+      top: 2px;
+      left: 2px;
+      transition: left 0.3s ease;
+    }
+
+    .toggle-switch.active::after {
+      left: 24px;
+    }
+
+    #monitorToggle {
+      display: none;
+    }
+
+    .status-box {
+      padding: 10px 20px;
+      border-radius: 8px;
+      font-weight: bold;
+      transition: background 0.3s ease, transform 0.2s ease;
+      min-width: 180px;
+      text-align: center;
+    }
+
+    .status-danger {
+      background: #ff4e4e;
+      color: white;
+      animation: pulse 1s infinite;
+    }
+
+    .status-safe {
+      background: #5cb85c;
+      color: white;
+    }
+
+    .status-inactive {
+      background: #999;
+      color: white;
+    }
+
+    @keyframes pulse {
+
+      0%,
+      100% {
+        transform: scale(1);
+      }
+
+      50% {
+        transform: scale(1.05);
+      }
+    }
+
+.detection-info {
+  font-size: 12px;
+  color: #666;
+  margin-top: 10px;
+  transition: opacity 0.3s ease;
+}
+
+        .footer-section a {
+            color: #fff !important;
+            opacity: 1 !important;
+            text-decoration: none !important;
+        }
+        .footer-section a:hover {
+            color: #00bfae !important;
+            opacity: 1 !important;
+            text-decoration: none !important;
+        }
+
+        footer a {
+            color: #fff !important;
+            text-decoration: none !important;
+        }
+        footer a:hover {
+            color: #00bfae !important;
+            text-decoration: none !important;
+        }
+
+        footer .quick-links a {
+            color: #fff !important;
+            opacity: 1 !important;
+            text-decoration: none !important;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        footer .quick-links a:hover {
+            color: #00bfae !important;
+            text-decoration: none !important;
+            opacity: 1 !important;
+        }
+
+        footer .footer-section .social-links a {
+            color: #fff !important;
+            opacity: 1 !important;
+            text-decoration: none !important;
+        }
+        footer .footer-section .social-links a:hover {
+            color: #00bfae !important;
+            opacity: 1 !important;
+            background: rgba(255, 255, 255, 0.2) !important;
+            text-decoration: none !important;
+        }
+
+        footer .footer-bottom {
+            color: white !important;
+        }
+
+        .footer-section .contact-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 0.95rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .footer-section .social-links {
+            display: flex;
+            gap: 15px;
+            margin-top: 0.5rem;
+        }
+
+        .footer-section .social-links a {
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            transition: all 0.3s ease;
+        }
+
+        .footer-section .social-links a:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-3px);
+        }
+
+        .footer-bottom {
+            text-align: center;
+            padding-top: 30px;
+            margin-top: 30px;
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        .footer-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 3rem;
+            padding-bottom: 40px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        /* RESPONSIVE */
+        @media (max-width: 1024px) {
+            .footer-container {
+                gap: 2rem;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .navbar {
+                padding: 0 20px;
+            }
+
+            .nav-links {
+                display: none;
+            }
+
+            .hamburger {
+                display: flex;
+            }
+
+            .content {
+              margin-left: 0;
+              padding: 15px;
+              align-items: center;
+              justify-content: center;
+            }
+
+            .box {
+                width: 100%;
+                min-height: 300px;
+                max-height: 400px;
+              margin: 0 auto;
+            }
+
+            #videoFrame {
+                width: 100%;
+                height: auto;
+            }
+
+            .controls {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 15px;
+                padding: 12px;
+            }
+
+            .status-box {
+                width: 100%;
+                min-width: auto;
+            }
+
+            footer {
+                padding: 40px 20px 20px;
+            }
+
+            .footer-container {
+                grid-template-columns: 1fr;
+                gap: 2rem;
+                padding-bottom: 30px;
+            }
+
+            .footer-section a {
+                font-size: 0.9rem;
+            }
+
+            .footer-section p {
+                font-size: 0.8rem;
+            }
+
+            .footer-section .social-links a {
+                width: 38px;
+                height: 38px;
+                font-size: 0.9rem;
+            }
+        }
+
+    @media (max-width: 600px) {
+      footer {
+        padding: 30px 15px 15px;
+      }
+
+      .footer-container {
+        gap: 1.5rem;
+        padding-bottom: 20px;
+      }
+
+      .footer-section h3 {
+        font-size: 1.2rem;
+      }
+
+      .footer-logo-section img {
+        width: 45px;
+        height: 45px;
+      }
+
+      .footer-section a {
+        font-size: 0.85rem;
+      }
+
+      .footer-section .social-links a {
+        width: 35px;
+        height: 35px;
+        font-size: 0.8rem;
+      }
+    }
+
+    @media (max-width: 500px) {
+      .navbar {
+        padding: 0 15px;
+        height: 60px;
+        flex-wrap: wrap;
+      }
+
+      .nav-links {
+        gap: 10px;
+        font-size: 12px;
+      }
+
+      .content {
+        margin-left: 0;
+        min-height: auto;
+        padding: 10px;
+      }
+
+      footer {
+        margin-left: 0;
+      }
+
+      .box {
+        width: 100%;
+        height: 100%;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- TOP NAVBAR -->
+  <div class="navbar">
+    <div class="nav-left">
+      <img src="/static/fall_logo.png" alt="SmartFall Logo">
+      <div class="nav-brand">SmartFall</div>
+    </div>
+
+    <nav class="nav-links">
+      <a href="{{ url_for('dashboard') }}" class="nav-link active">Dashboard</a>
+      <a href="{{ url_for('live') if session.get('user') else url_for('login') }}" class="nav-link">Live Monitor</a>
+      <a href="{{ url_for('contact_page') if session.get('user') else url_for('login') }}" class="nav-link">Contacts</a>
+      <a href="{{ url_for('logout') }}" class="nav-link">Logout</a>
+    </nav>
+
+    <div class="hamburger" id="hamburger">
+      <span></span>
+      <span></span>
+      <span></span>
+    </div>
+  </div>
+
+  <!-- Mobile Menu -->
+  <nav class="mobile-menu" id="mobileMenu">
+    <a href="{{ url_for('dashboard') if session.get('user') else url_for('login') }}" class="nav-link">Dashboard</a>
+    <a href="{{ url_for('live') if session.get('user') else url_for('login') }}" class="nav-link active">Live Monitor</a>
+    <a href="{{ url_for('contact_page') if session.get('user') else url_for('login') }}" class="nav-link">Contacts</a>
+    <a href="{{ url_for('logout') }}" class="nav-link">Logout</a>
+  </nav>
+
+  <!-- MAIN CONTENT -->
+  <div class="content">
+    <h2>Live Monitoring Feed</h2>
+
+    <div class="box">
+      <img id="videoFrame" src="">
+      <div id="camOffMessage">Cam is Off</div>
+    </div>
+
+    <div class="controls">
+      <label for="monitorToggle">Monitor Mode:</label>
+      <label class="toggle-switch" id="toggleLabel" for="monitorToggle">
+        <input type="checkbox" id="monitorToggle">
+      </label>
+
+      <label>Detection Status:</label>
+      <span id="statusBox" class="status-box status-inactive">Monitoring Off</span>
+    </div>
+
+    <div class="detection-info" id="detectionInfo">
+      Turn on Monitor Mode to start detecting falls
+    </div>
+  </div>
+
+    <!-- FOOTER -->
+    {% include 'footer.html' %}
+  <script>
+    // Hamburger menu toggle
+    const hamburger = document.getElementById('hamburger');
+    const mobileMenu = document.getElementById('mobileMenu');
+
+    hamburger.addEventListener('click', () => {
+      hamburger.classList.toggle('active');
+      mobileMenu.classList.toggle('active');
+    });
+
+    // Close menu when a link is clicked
+    document.querySelectorAll('.mobile-menu .nav-link').forEach(link => {
+      link.addEventListener('click', () => {
+        hamburger.classList.remove('active');
+        mobileMenu.classList.remove('active');
+      });
+    });
+
+    const toggle = document.getElementById("monitorToggle");
+    const toggleLabel = document.getElementById("toggleLabel");
+    const video = document.getElementById("videoFrame");
+    const statusBox = document.getElementById("statusBox");
+    const detectionInfo = document.getElementById("detectionInfo");
+    const camOffMessage = document.getElementById("camOffMessage");
+    let statusCheckInterval = null;
+    let isMonitoring = false;
+
+    // Toggle monitoring on/off
+    toggle.addEventListener("change", function () {
+      isMonitoring = this.checked;
+
+      if (this.checked) {
+        // START MONITORING
+        video.src = "/stream_live";
+        camOffMessage.style.display = "none";
+        toggleLabel.classList.add("active");
+        statusBox.textContent = "No Fall Detected";
+        statusBox.className = "status-box status-safe";
+        detectionInfo.textContent = "Monitoring live feed for falls...";
+
+        // Start checking fall status every 0.5 sec for faster detection
+        statusCheckInterval = setInterval(() => {
+          if (!isMonitoring) return;
+
+          fetch("/fall_status")
+            .then(res => res.json())
+            .then(data => {
+              if (data.fall) {
+                console.log("Fall detected!");
+                statusBox.textContent = "🚨 FALL DETECTED! 🚨";
+                statusBox.className = "status-box status-danger";
+                detectionInfo.textContent = "⚠️ Fall alert logged - SMS sent to emergency contacts";
+
+                // Keep alert visible for 5 seconds for better visibility
+                setTimeout(() => {
+                  if (isMonitoring) {
+                    statusBox.textContent = "No Fall Detected";
+                    statusBox.className = "status-box status-safe";
+                    detectionInfo.textContent = "✓ Monitoring live feed for falls...";
+                  }
+                }, 5000);
+              } else {
+                if (isMonitoring && statusBox.textContent !== "🚨 FALL DETECTED! 🚨") {
+                  statusBox.textContent = "No Fall Detected";
+                  statusBox.className = "status-box status-safe";
+                  detectionInfo.textContent = "✓ Monitoring live feed for falls...";
+                }
+              }
+            })
+            .catch(err => {
+              console.error('Fall status fetch error:', err);
+              // Don't change status on error, keep showing whatever we had
+            });
+        }, 500);
+      } else {
+        // STOP MONITORING
+        video.src = "";
+        camOffMessage.style.display = "flex";
+        toggleLabel.classList.remove("active");
+        statusBox.textContent = "Monitoring Off";
+        statusBox.className = "status-box status-inactive";
+        detectionInfo.textContent = "Turn on Monitor Mode to start detecting falls";
+
+        // Stop checking fall status
+        if (statusCheckInterval) {
+          clearInterval(statusCheckInterval);
+          statusCheckInterval = null;
+        }
+      }
+    });
+  </script>
+
+</body>
+
+</html>

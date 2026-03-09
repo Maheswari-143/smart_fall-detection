@@ -1,0 +1,701 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <title>About | Smart Fall Detection</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <!-- Google Font -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.1/css/all.min.css"
+        integrity="sha512-5Hs3dF2AEPkpNAR7UiOHba+lRSJNeM2ECkwxUIxC1Q/FLycGTbNapWXB4tP889k5T5Ju8fs4b1P5z/iB4nMfSQ=="
+        crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+    <style>
+        :root {
+            --primary: #0b4a4a;
+            --primary-light: #0f5d5d;
+            --bg: #f4f7fb;
+            --text: #102a43;
+            --muted: #6b7280;
+            --card-bg: #ffffff;
+            --btn-radius: 999px;
+            --shadow-soft: 0 18px 40px rgba(15, 23, 42, 0.08);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: "Inter", sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+        }
+
+        a {
+            text-decoration: none;
+            color: inherit;
+        }
+
+        .navbar {
+            background: var(--primary);
+            color: #fff;
+            padding: 0 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 50;
+            height: 70px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .nav-left {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .nav-left img {
+            width: 50px;
+            height: 50px;
+            object-fit: contain;
+            border: 3px solid white;
+            border-radius: 50%;
+            padding: 5px;
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .nav-brand {
+            font-weight: 700;
+            font-size: 20px;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 30px;
+            align-items: center;
+        }
+
+        .nav-link {
+            color: white;
+            text-decoration: none;
+            font-size: 14px;
+            transition: opacity 0.3s ease;
+        }
+
+        .nav-link:hover {
+            opacity: 0.8;
+        }
+
+        /* Hamburger Menu */
+        .hamburger {
+            display: none;
+            flex-direction: column;
+            cursor: pointer;
+            gap: 5px;
+        }
+
+        .hamburger span {
+            width: 25px;
+            height: 3px;
+            background: white;
+            border-radius: 2px;
+            transition: all 0.3s ease;
+        }
+
+        .hamburger.active span:nth-child(1) {
+            transform: rotate(45deg) translate(10px, 10px);
+        }
+
+        .hamburger.active span:nth-child(2) {
+            opacity: 0;
+        }
+
+        .hamburger.active span:nth-child(3) {
+            transform: rotate(-45deg) translate(7px, -7px);
+        }
+
+        /* Mobile Menu */
+        .mobile-menu {
+            display: none;
+            position: absolute;
+            top: 70px;
+            left: 0;
+            right: 0;
+            background: var(--primary);
+            flex-direction: column;
+            padding: 20px;
+            gap: 15px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            z-index: 40;
+        }
+
+        .mobile-menu.active {
+            display: flex;
+        }
+
+        .mobile-menu .nav-link {
+            padding: 12px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .mobile-menu .nav-link:last-child {
+            border-bottom: none;
+        }
+
+        .mobile-menu .live-nav {
+            background: #e74c3c;
+            color: white !important;
+            border-radius: 12px;
+            padding: 12px 16px;
+            font-weight: 700;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 3px 10px rgba(231, 76, 60, 0.35);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            align-self: flex-start;
+            width: auto;
+        }
+
+        .nav-link.active::after {
+            content: "";
+            display: none;
+        }
+
+        .btn-live-monitor {
+            background: #e74c3c !important;
+            color: white !important;
+            border: none !important;
+            padding: 10px 20px !important;
+            border-radius: 25px !important;
+            cursor: pointer !important;
+            font-weight: 600 !important;
+            font-size: 14px !important;
+            transition: all 0.3s ease !important;
+            display: flex !important;
+            align-items: center !important;
+            gap: 8px !important;
+            box-shadow: 0 2px 8px rgba(231, 76, 60, 0.3) !important;
+        }
+
+        .btn-live-monitor:hover {
+            background: #c0392b !important;
+            transform: translateY(-2px) !important;
+            box-shadow: 0 4px 12px rgba(231, 76, 60, 0.4) !important;
+        }
+
+        .btn-live-monitor:active {
+            transform: translateY(0) !important;
+        }
+
+
+        /* SECTION */
+        .section {
+            padding: 2rem 6vw;
+            max-width: 1200px;
+            margin: 2rem auto 4rem auto;
+            display: flex;
+            justify-content: center;
+        }
+
+.carousel-wrapper {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 2rem;
+    justify-content: center;
+    justify-items: center;
+}
+
+.card {
+    width: 100%;
+    max-width: 250px; /* make cards a fixed square size */
+    aspect-ratio: 1 / 1; /* square shape */
+    background: white;
+    border-radius: 20px;
+    padding: 1rem;
+    box-shadow: 0 12px 35px rgba(0, 0, 0, 0.12);
+    perspective: 1200px;
+    transition: transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1),
+                box-shadow 0.5s ease;
+}
+
+.card:hover {
+    transform: translateY(-10px) scale(1.05);
+    box-shadow: 0 25px 55px #0f5d5d;
+}
+
+@media (max-width: 1200px) {
+    .carousel-wrapper {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 768px) {
+    .carousel-wrapper {
+        grid-template-columns: 1fr;
+    }
+}
+
+
+
+        /* CARD */
+        .card {
+            background: white;
+            border-radius: 20px;
+            padding: 2.5rem;
+            min-height: 450px;
+            box-shadow: 0 12px 35px rgba(0, 0, 0, 0.12);
+            perspective: 1200px;
+            transition: transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1),
+                        box-shadow 0.5s ease; /* ZOOM + SHADOW */
+        }
+
+        .card:hover {
+            transform: translateY(-16px) scale(1.05);
+            box-shadow: 0 25px 55px #0f5d5d;
+        }
+
+        .card-inner {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            transform-style: preserve-3d;
+            transition: transform 0.8s ease;
+        }
+
+        .card.flipped .card-inner {
+            transform: rotateY(180deg);
+        }
+
+        .card-front,
+        .card-back {
+            position: absolute;
+            inset: 0;
+            backface-visibility: hidden;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            gap: 1.5rem;
+        }
+
+        .card-back {
+            transform: rotateY(180deg);
+        }
+
+        .icon {
+            height: 200px;
+            width: 100%;
+            border-radius: 16px;
+            overflow: hidden;
+        }
+
+        .icon img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        h3 {
+            background: var(--primary);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-size: 1.1rem;
+        }
+
+        button {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 12px 26px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        p {
+            color: var(--muted);
+            font-size: 0.95rem;
+            line-height: 1.7;
+        }
+
+        footer {
+            background: var(--primary);
+            color: white;
+            padding: 60px 40px 30px;
+            margin-top: auto;
+            box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .footer-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr 1fr;
+            gap: 3rem;
+            padding-bottom: 40px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .footer-section {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .footer-logo-section {
+            display: flex;
+            align-items: center;
+            gap: 18px;
+            margin-bottom: 1.2rem;
+        }
+
+        .footer-logo-section img {
+            width: 55px;
+            height: 55px;
+            object-fit: contain;
+        }
+
+        .footer-section h3 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+        }
+
+        .footer-section p {
+            font-size: 0.95rem;
+            line-height: 1.8;
+            opacity: 0.9;
+        }
+
+        .footer-section .contact-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 0.5rem;
+        }
+
+        .footer-section .social-links {
+            display: flex;
+            gap: 15px;
+            margin-top: 1rem;
+        }
+
+        .footer-section .social-links a {
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.3rem;
+            transition: all 0.3s ease;
+            color: white;
+        }
+
+        .footer-section .social-links a:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-3px);
+        }
+
+        .quick-links {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .quick-links li {
+            margin-bottom: 0.5rem;
+        }
+
+        .quick-links a {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 0.95rem;
+            transition: opacity 0.3s ease;
+            color: white;
+        }
+
+        .quick-links a:hover {
+            opacity: 0.8;
+        }
+
+        .footer-bottom {
+            text-align: center;
+            padding-top: 30px;
+            font-size: 14px;
+            font-weight: 500;
+            opacity: 0.9;
+        }
+
+        /* RESPONSIVE */
+        @media (max-width: 1024px) {
+            .hero {
+                grid-template-columns: 1fr;
+                gap: 2rem;
+                padding: 3rem 4vw;
+            }
+
+            .hero-image {
+                max-width: 100%;
+                height: 350px;
+            }
+
+            .footer-container {
+                grid-template-columns: 1fr;
+                gap: 2.5rem;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .navbar {
+                padding: 0 20px;
+            }
+
+            .nav-links {
+                display: none;
+            }
+
+            .hamburger {
+                display: flex;
+            }
+
+            .hero {
+                padding: 2rem 5vw;
+                gap: 1.5rem;
+            }
+
+            .hero-title {
+                font-size: 1.8rem;
+            }
+
+            .hero-image {
+                height: 300px;
+            }
+
+            .features-wrapper {
+                padding: 2rem 5vw;
+            }
+
+            .cards {
+                grid-template-columns: 1fr;
+            }
+
+            footer {
+                padding: 40px 20px 20px;
+            }
+
+            .footer-container {
+                gap: 2rem;
+            }
+        }
+        /* RESPONSIVE */
+        @media (max-width: 1024px) {
+            .hero {
+                grid-template-columns: 1fr;
+                gap: 2rem;
+                padding: 3rem 4vw;
+            }
+
+            .hero-image {
+                max-width: 100%;
+                height: 350px;
+            }
+
+            .footer-container {
+                grid-template-columns: 1fr;
+                gap: 2.5rem;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .navbar {
+                padding: 0 20px;
+            }
+
+            .nav-links {
+                display: none;
+            }
+
+            .hamburger {
+                display: flex;
+            }
+
+            .section {
+                padding: 1.5rem 5vw;
+            }
+
+            .carousel-wrapper {
+                grid-template-columns: 1fr;
+                justify-items: center;
+            }
+
+            .hero {
+                padding: 2rem 5vw;
+                gap: 1.5rem;
+            }
+
+            .hero-title {
+                font-size: 1.8rem;
+            }
+
+            .hero-image {
+                height: 300px;
+            }
+
+            .features-wrapper {
+                padding: 2rem 5vw;
+            }
+
+            .cards {
+                grid-template-columns: 1fr;
+            }
+
+            footer {
+                padding: 40px 20px 20px;
+            }
+
+            .footer-container {
+                gap: 2rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- NAVBAR -->
+    <header class="navbar">
+        <div class="nav-left">
+            <img src="/static/fall_logo.png" alt="SmartFall Logo">
+            <div class="nav-brand">SmartFall</div>
+        </div>
+
+        <nav class="nav-links">
+           <a href="{{ url_for('home') }}" class="nav-link">Home</a>
+          <a href="{{ url_for('about') }}" class="nav-link">About</a>
+          <a href="{{ url_for('upload_page') }}" class="nav-link">Upload</a>
+          <a href="{{ url_for('analytics') }}" class="nav-link active">Analytics</a>
+          <a href="{{ url_for('live') if session.get('user') else url_for('login') }}" class="btn-live-monitor">🔴 Live Monitor</a>
+        </nav>
+
+        <div class="hamburger" id="hamburger">
+          <span></span>
+          <span></span>
+          <span></span>
+        </div>
+    </header>
+
+    <!-- Mobile Menu -->
+    <nav class="mobile-menu" id="mobileMenu">
+        <a href="{{ url_for('home') }}" class="nav-link">Home</a>
+        <a href="{{ url_for('about') }}" class="nav-link">About</a>
+        <a href="{{ url_for('upload_page') }}" class="nav-link">Upload</a>
+        <a href="{{ url_for('analytics') }}" class="nav-link">Analytics</a>
+        <a href="{{ url_for('live') if session.get('user') else url_for('login') }}" class="nav-link live-nav">🔴 Live Monitor</a>
+    </nav>
+
+    <!-- CARDS -->
+    <section class="section">
+        <div class="carousel-wrapper">
+
+            <!-- CARD 1 -->
+            <div class="card">
+                <div class="card-inner">
+                    <div class="card-front">
+                        <div class="icon"><img src="/static/alret.png"></div>
+                        <h3>Fall Detection</h3>
+                        <button onclick="flipCard(event,0)">Learn More</button>
+                    </div>
+                    <div class="card-back">
+                        <h3>Fall Detection</h3>
+                        <p>Detects falls in real-time and sends immediate alerts.</p>
+                        <button onclick="flipCard(event,0)">Show Less</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- CARD 2 -->
+            <div class="card">
+                <div class="card-inner">
+                    <div class="card-front">
+                        <div class="icon"><img src="/static/pose_icon.png"></div>
+                        <h3>Video Upload</h3>
+                        <button onclick="flipCard(event,1)">Learn More</button>
+                    </div>
+                    <div class="card-back">
+                        <h3>Video Upload</h3>
+                        <p>Upload videos to analyze human activity and detect falls.</p>
+                        <button onclick="flipCard(event,1)">Show Less</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- CARD 3 -->
+            <div class="card">
+                <div class="card-inner">
+                    <div class="card-front">
+                        <div class="icon"><img src="/static/live_icon.png"></div>
+                        <h3>Live Monitoring</h3>
+                        <button onclick="flipCard(event,2)">Learn More</button>
+                    </div>
+                    <div class="card-back">
+                        <h3>Live Monitoring</h3>
+                        <p>Monitor activities live with real-time analytics.</p>
+                        <button onclick="flipCard(event,2)">Show Less</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- CARD 4 -->
+            <div class="card">
+                <div class="card-inner">
+                    <div class="card-front">
+                        <div class="icon"><img src="/static/alret.png"></div>
+                        <h3>User Interaction</h3>
+                        <button onclick="flipCard(event,3)">Learn More</button>
+                    </div>
+                    <div class="card-back">
+                        <h3>User Interaction</h3>
+                        <p>Instant alerts and notifications for quick response.</p>
+                        <button onclick="flipCard(event,3)">Show Less</button>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+    <!-- FOOTER -->
+    {% include 'footer.html' %}
+    <script>
+        // Hamburger menu toggle
+        document.getElementById('hamburger').onclick = function() {
+            this.classList.toggle('active');
+            document.getElementById('mobileMenu').classList.toggle('active');
+        }
+
+        // Card flip function
+        function flipCard(event, index) {
+            const card = event.currentTarget.closest('.card');
+            card.classList.toggle('flipped');
+        }
+    </script>
+</body>
+
+</html>
